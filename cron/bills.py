@@ -2,6 +2,7 @@ from scrape import Fetch, Proxy, BillScraper
 import sys
 import time
 import re
+import json
 
 with open("bills.txt", "r") as f:
     content = f.read()
@@ -13,13 +14,13 @@ if __name__ == "__main__":
     proxy.run()
     time.sleep(10)
 
-    fetch = Fetch(proxy=proxy) 
-    scraper = BillScraper(fetch)   
+    fetch = Fetch(proxy=proxy)
+    scraper = BillScraper(fetch)
 
     for line in sys.stdin:
         if line in saved_urls:
             continue
         bill = scraper.scrape(line.strip())
-        print(bill.__dict__())
+        print(json.dumps(bill.__dict__))
 
     proxy.kill()

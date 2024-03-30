@@ -7,7 +7,7 @@ class BillsSitemapScraper:
 
     def get_bill_urls(self, url: str) -> list[str]:
         content = self.fetch.simple_request(url)
-        soup = BeautifulSoup(content, 'lxml')
+        soup = BeautifulSoup(content, 'xml')
         urls = soup.find_all("url")
         return [
             url.find('loc').text

@@ -1,4 +1,3 @@
-from concurrent.futures import thread
 import math
 import time
 from scrape import (
@@ -12,6 +11,7 @@ from scrape import (
 from store import Store, Bill as StoreBill
 import logging
 import threading
+import os
 
 URL = "https://www.govinfo.gov/sitemap/BILLS_2024_sitemap.xml"
 
@@ -78,6 +78,11 @@ if __name__ == "__main__":
     logging.basicConfig()
     logging.root.setLevel(logging.INFO)
 
+    # get env vars
+    mongo_url = os.environ["MONGODB_URL"]
+    mongo_db = os.environ["MONGODB_DATABASE"]
+    mongo_col = os.environ["MONGODB_COLLECTION"]
+
     # setup resources for threads
     thread_count = 10
     logging.info("Setting up proxies...")
@@ -86,7 +91,7 @@ if __name__ == "__main__":
     # setup main resources
     fetch = Fetch(proxies[0])
     sitemap_scraper = BillsSitemapScraper(fetch)
-    store = Store("mongodb://localhost:27017/", "bills", "us-congress-bills")
+    store = Store(mongo_url, mongo_db, mongo_col)
 
     # fetch and parse bill metadata
     logging.info("Fetching bill metadata")

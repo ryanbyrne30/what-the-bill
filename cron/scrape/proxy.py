@@ -1,4 +1,6 @@
 from subprocess import Popen, DEVNULL
+import logging
+
 
 class Proxy:
     def __init__(self, id: int, change_ip_after: int = 5) -> None:
@@ -10,7 +12,7 @@ class Proxy:
 
     def __get_socks_port(self):
         return self.start_port + (self.id * 2)
-    
+
     def socks_connection(self) -> str:
         return f"socks5://localhost:{self.__get_socks_port()}"
 
@@ -26,15 +28,18 @@ MaxCircuitDirtiness {change_ip_after}
             f.write(contents)
 
     def run(self) -> str:
+        logging.info(f"Tor[{self.id}] Creating config")
         self.__create_tor_config()
-        self.process = Popen(['tor', '-f', self.config_file], stdout=DEVNULL)
+        logging.info(f"Tor[{self.id}] Creating socket")
+        self.process = Popen(["tor", "-f", self.config_file], stdout=DEVNULL)
         return self.socks_connection()
 
     def kill(self):
+        if self.process is None:
+            return
         self.process.terminate()
         self.process.wait()
 
     def reset(self):
         self.kill()
         self.run()
-

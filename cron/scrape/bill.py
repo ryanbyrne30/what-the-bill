@@ -1,6 +1,8 @@
 from .fetch import Fetch
 from bs4 import BeautifulSoup
 from typing import Any
+from datetime import datetime
+from . import config
 
 
 class Bill:
@@ -11,7 +13,7 @@ class Bill:
         self.sudoc_class_number: str = ""
         self.congress_number: str = ""
         self.congress_session: str = ""
-        self.last_action_date: str = ""
+        self.last_action_date: datetime = config.BASE_DATE
         self.action: str = ""
         self.actions: str = ""
         self.bill_number: str = ""
@@ -23,6 +25,7 @@ class Bill:
         self.committees: str = ""
         self.us_code_reference: str = ""
         self.text: str = ""
+        self.congress_updated_at: datetime = config.BASE_DATE
         self.soup: BeautifulSoup | None = None
         self.__dict__ = {
             "short_title": self.short_title,
@@ -43,6 +46,7 @@ class Bill:
             "committees": self.committees,
             "us_code_reference": self.us_code_reference,
             "text": self.text,
+            "congress_updated_at": self.congress_updated_at,
         }
 
     def __str__(self) -> str:
@@ -64,9 +68,6 @@ class BillScraper:
         )
         bill.congress_number = self.__scrape_summary_value(soup, "Congress Number")
         bill.congress_session = self.__scrape_summary_value(soup, "Congress Session")
-        bill.last_action_date = self.__scrape_summary_value(
-            soup, "Last Action Date Listed"
-        )
         bill.action = self.__scrape_summary_value(soup, "Action")
         bill.action = self.__scrape_summary_value(soup, "Actions")
         bill.bill_number = self.__scrape_summary_value(soup, "Bill Number")
@@ -80,6 +81,9 @@ class BillScraper:
             soup, "United States Code Reference"
         )
         bill.text = self.__scrape_text(soup)
+        last_action_date = self.__scrape_summary_value(soup, "Last Action Date Listed")
+        # January 9, 2024
+        bill.last_action_date = datetime.strptime(last_action_date, "%B %d, %Y")
         return bill
 
     def __soupify(self, url: str) -> BeautifulSoup:

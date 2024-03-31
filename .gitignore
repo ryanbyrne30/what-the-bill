@@ -1,0 +1,8 @@
+# env
+.env
+
+# python
+venv
+__pycache__
+*.txt
+!requirements.txt

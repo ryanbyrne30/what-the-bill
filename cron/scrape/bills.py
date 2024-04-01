@@ -15,7 +15,7 @@ class BillsSitemapScraper:
         self.fetch = fetch
 
     def get_bills(self, sitemap_url: str) -> list[BillSitemap]:
-        content = self.fetch.simple_request(sitemap_url)
+        content = self.fetch.dynamic_request(sitemap_url, "body")
         soup = BeautifulSoup(content, "xml")
         blocks: ResultSet[Tag] = soup.find_all("url")
         bills: list[BillSitemap] = []

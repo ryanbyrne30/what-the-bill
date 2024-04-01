@@ -13,8 +13,6 @@ import logging
 import threading
 import os
 
-URL = "https://www.govinfo.gov/sitemap/BILLS_2024_sitemap.xml"
-
 
 def create_proxies(n: int) -> list[Proxy]:
     proxies = [Proxy(i, 5) for i in range(n)]
@@ -82,6 +80,7 @@ if __name__ == "__main__":
     mongo_url = os.environ["MONGODB_URL"]
     mongo_db = os.environ["MONGODB_DATABASE"]
     mongo_col = os.environ["MONGODB_COLLECTION"]
+    sitemap_url = os.environ["SITEMAP_URL"]
 
     # setup resources for threads
     thread_count = 10
@@ -95,7 +94,7 @@ if __name__ == "__main__":
 
     # fetch and parse bill metadata
     logging.info("Fetching bill metadata")
-    bills_meta = sitemap_scraper.get_bills(URL)
+    bills_meta = sitemap_scraper.get_bills(sitemap_url)
     logging.info(f"Metadata found for {len(bills_meta)} bills")
     bills_to_scrape = list(filter(lambda b: store.should_scrape(b.url), bills_meta))
     bills_to_scrape = bills_to_scrape[:10]

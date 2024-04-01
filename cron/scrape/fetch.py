@@ -4,6 +4,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service as ChromeService
+from webdriver_manager.chrome import ChromeDriverManager
 import requests
 from .user_agents import random_user_agent
 from .proxy import Proxy
@@ -24,6 +26,10 @@ class Fetch:
         self.user_agent = random_user_agent()
         self.request_count = 0
         self.proxy = proxy
+
+    def __log_ip(self):
+        content = self.simple_request("http://checkip.amazonaws.com/")
+        logging.info(f"IP: {str(content)}")
 
     def __cycle_agent(self):
         if self.request_count > 10:
@@ -53,18 +59,22 @@ class Fetch:
 
     def simple_request(self, url: str, count: int = 0) -> bytes:
         logging.debug(f"Sending simple request to {url}")
-        max_count = 5
+        max_count = 10
         self.sleep()
         self.__cycle_agent()
         response = self.__create_session().get(url)
         if response.status_code == 200:
             return response.content
+        logging.warn(f"Received status code: {response.status_code}")
         if count >= max_count:
-            logging.warn(f"Received status code: {response.status_code}")
             return bytes("", "utf-8")
         if self.proxy is not None:
+            logging.error("Resetting proxy")
             self.proxy.reset()
-        time.sleep(10)
+            time.sleep(10)
+            self.__log_ip()
+        else:
+            time.sleep(5)
         return self.simple_request(url, count + 1)
 
     def __intercept_request(self, req):
@@ -77,16 +87,17 @@ class Fetch:
         options.add_experimental_option("excludeSwitches", ["enable-logging"])
         if self.proxy is not None:
             options.add_argument(f"--proxy-server={self.proxy.socks_connection()}")
-        driver = webdriver.Chrome(options=options)
+        driver = webdriver.Chrome(
+            service=ChromeService(ChromeDriverManager().install()), options=options
+        )
         driver.request_interceptor = self.__intercept_request
         return driver
 
     def dynamic_request(self, url: str, wait_for: str | None, count: int = 0):
-        max_count = 5
+        max_count = 10
         self.sleep()
         self.__cycle_agent()
 
-        # print(f"Sending dynamic request to {url}")
         webdriver = self.__setup_webdriver()
         webdriver.get(url)
         html = ""
@@ -99,8 +110,10 @@ class Fetch:
             html = webdriver.page_source
         except:
             if count < max_count and self.proxy is not None:
+                logging.error("Resetting proxy...")
                 self.proxy.reset()
-                time.sleep(5)
+                time.sleep(10)
+                self.__log_ip()
                 return self.dynamic_request(url, wait_for, count=count + 1)
             return html
         finally:

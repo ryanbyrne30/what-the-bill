@@ -53,6 +53,11 @@ class Bill:
         return f"Bill(category: {self.category}, bill_number: {self.bill_number}, short_title: {self.short_title}, text_length: {len(self.text)})"
 
 
+class BillApiScraper:
+    def __init__(self, fetch: Fetch) -> None:
+        self.fetch = fetch
+
+
 class BillScraper:
     def __init__(self, fetch: Fetch) -> None:
         self.fetch = fetch

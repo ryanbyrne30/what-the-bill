@@ -154,6 +154,6 @@ class GovInfoBill:
         return b
 
     def fetch_bill(self, url: str) -> Bill:
-        logging.info("Fetching info for bill:", url)
+        logging.info(f"Fetching info for bill: {url}")
         response = self.fetch.json_request(url, headers={"X-Api-Key": self.api_key})
         return self.__transform_response(response)

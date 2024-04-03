@@ -17,15 +17,15 @@ if __name__ == "__main__":
     fetch = Fetch()
     bills_scraper = GovInfoBills(api_key=api_key, fetch=fetch)
     bill_scraper = GovInfoBill(api_key=api_key, fetch=fetch)
-    response = bills_scraper.fetch_bills(datetime.now() - timedelta(days=30), 4)
+    response = bills_scraper.fetch_bills(datetime.now() - timedelta(days=30), 10)
     packages = response.packages
     packages = list(
         filter(lambda p: not mongo.bill_exists(p.id, p.last_modified), packages)
     )
 
-    print(f"Found {response.count} bills")
+    logging.info(f"Found {response.count} bills")
 
     for bill in packages:
         b = bill_scraper.fetch_bill(bill.link)
-        print(f"{bill.last_modified} - {bill.title}")
+        logging.info(f"{bill.last_modified} - {bill.title}")
         mongo.upsert_bill(b)

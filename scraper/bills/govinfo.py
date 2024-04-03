@@ -1,4 +1,5 @@
 from datetime import datetime
+import logging
 import urllib.parse
 from typing import Any, TypeVar
 from bs4 import Tag
@@ -139,6 +140,7 @@ class GovInfoBill:
         if related_links != "":
             bill_status_link = key_or_default(related_links, "billStatusLink", "")
         if bill_status_link != "":
+            logging.info("Fetching actions for bill:", b.bill_id)
             b.actions = self.__fetch_actions(bill_status_link)
 
         bill_text_link = ""
@@ -146,10 +148,12 @@ class GovInfoBill:
         if downloads != []:
             bill_text_link = key_or_default(downloads, "txtLink", "")
         if bill_text_link != "":
+            logging.info("Fetching text for bill:", b.bill_id)
             b.text = self.__fetch_text(bill_text_link)
 
         return b
 
     def fetch_bill(self, url: str) -> Bill:
+        logging.info("Fetching info for bill:", url)
         response = self.fetch.json_request(url, headers={"X-Api-Key": self.api_key})
         return self.__transform_response(response)

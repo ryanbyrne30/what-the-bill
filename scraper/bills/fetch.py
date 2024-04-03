@@ -36,7 +36,9 @@ class Fetch:
 
     def sleep(self):
         delta = time.time() - self.last_request_time
+        logging.debug(f"Delta between sleeps: {round(delta, 4)} seconds")
         if delta < self.timeout_min:
+            logging.debug("Delta between requests too short, attempting to sleep...")
             sleep_time_ms = random.randrange(0, 1000) / 1000
             sleep_time_sec = random.randrange(self.timeout_min, self.timeout_max)
             sleep_time = sleep_time_sec + sleep_time_ms

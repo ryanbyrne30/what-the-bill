@@ -1,4 +1,4 @@
-import scraper.sources.common as common
+import bills.common as common
 
 
 class Action:

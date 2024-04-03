@@ -33,11 +33,11 @@ class GovInfoBills:
 
     def __format_datetime(self, d: datetime) -> str:
         date = d.strftime("%Y-%m-%d")
-        time = d.strftime("%H%M:%S")
+        time = d.strftime("%H:%M:%S")
         return f"{date}T{time}Z"
 
     def __url(self, path: str, query: dict[str, Any]) -> str:
-        return self.url_base + path + urllib.parse.urlencode(query)
+        return self.url_base + path + "?" + urllib.parse.urlencode(query)
 
     def __transform_package(self, p: Any) -> GovInfoBillsResponsePackage:
         r = GovInfoBillsResponsePackage()
@@ -51,7 +51,7 @@ class GovInfoBills:
 
         modified = key_or_default(p, "lastModified", "")
         if modified != "":
-            r.last_modified = datetime.strptime(issued, "%Y-%m-%dT%H:%M:%SZ")
+            r.last_modified = datetime.strptime(modified, "%Y-%m-%dT%H:%M:%SZ")
 
         return r
 
@@ -80,7 +80,7 @@ class GovInfoBill:
         self.api_key = api_key
         self.fetch = fetch
 
-    def __transform_action(self, t: Tag) -> Action:
+    def __transform_action(self, t: Tag) -> Action | None:
         a = Action()
 
         date = t.find("actionDate")
@@ -90,19 +90,33 @@ class GovInfoBill:
         text = t.find("text")
         if isinstance(text, Tag):
             a.text = text.text
+        else:
+            return None
 
         return a
 
     def __fetch_actions(self, url: str) -> list[Action]:
         response = self.fetch.xml_request(url)
 
-        action_items: list[Tag] = []
+        action_item_tags: list[Tag] = []
 
-        actions = response.find("actions")
-        if isinstance(actions, Tag):
-            action_items = actions.find_all("item")
+        actions_tag = response.find("actions")
+        if isinstance(actions_tag, Tag):
+            action_item_tags = actions_tag.find_all("item")
 
-        return [self.__transform_action(a) for a in action_items]
+        data: dict[str, Action] = {}
+        for action_item_tag in action_item_tags:
+            action = self.__transform_action(action_item_tag)
+            if action is not None:
+                key = f"{action.text}::{action.date.strftime('%Y-%m-%dT%H:%M:%S')}"
+                data[key] = action
+
+        actions = list(data.values())
+        actions.sort(key=lambda a: a.date, reverse=True)
+        return actions
+
+    def __fetch_text(self, url: str) -> str:
+        return self.fetch.html_request(url, headers={"X-Api-Key": self.api_key}).text
 
     def __transform_response(self, response: Any) -> Bill:
         b = Bill()
@@ -114,11 +128,11 @@ class GovInfoBill:
 
         issued = key_or_default(response, "dateIssued", "")
         if issued != "":
-            b.issued = datetime.strptime(issued, "%Y-%m%d")
+            b.issued = datetime.strptime(issued, "%Y-%m-%d")
 
         updated = key_or_default(response, "lastModified", "")
         if updated != "":
-            b.updated = datetime.strptime(updated, "%Y-%m%dT%H:%M:%SZ")
+            b.updated = datetime.strptime(updated, "%Y-%m-%dT%H:%M:%SZ")
 
         bill_status_link = ""
         related_links = key_or_default(response, "related", "")
@@ -126,6 +140,13 @@ class GovInfoBill:
             bill_status_link = key_or_default(related_links, "billStatusLink", "")
         if bill_status_link != "":
             b.actions = self.__fetch_actions(bill_status_link)
+
+        bill_text_link = ""
+        downloads = key_or_default(response, "download", [])
+        if downloads != []:
+            bill_text_link = key_or_default(downloads, "txtLink", "")
+        if bill_text_link != "":
+            b.text = self.__fetch_text(bill_text_link)
 
         return b
 

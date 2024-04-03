@@ -40,7 +40,7 @@ class Fetch:
             sleep_time_ms = random.randrange(0, 1000) / 1000
             sleep_time_sec = random.randrange(self.timeout_min, self.timeout_max)
             sleep_time = sleep_time_sec + sleep_time_ms
-            logging.info(f"Sleeping for {sleep_time} seconds...")
+            logging.info(f"Sleeping for {round(sleep_time, 2)} seconds...")
             time.sleep(sleep_time)
         self.last_request_time = time.time()
 
@@ -54,12 +54,26 @@ class Fetch:
         response = self.__create_session(headers).get(url)
         if response.status_code == 200:
             return response
-        logging.warn(f"Received status code: {response.status_code}")
+        logging.warn(f"Received status code {response.status_code} for url {url}")
         if count >= max_count:
             return None
         else:
             time.sleep(5)
         return self.__simple_request(url, headers, count + 1)
+
+    def text_request(self, url: str, headers: dict[str, str | bytes] = {}) -> str:
+        response = self.__simple_request(url, headers)
+        if response is not None:
+            return response.text
+        return ""
+
+    def html_request(
+        self, url: str, headers: dict[str, str | bytes] = {}
+    ) -> BeautifulSoup:
+        response = self.__simple_request(url, headers)
+        if response is not None:
+            return BeautifulSoup(response.content, "html.parser")
+        return BeautifulSoup("", "html.parser")
 
     def xml_request(
         self, url: str, headers: dict[str, str | bytes] = {}

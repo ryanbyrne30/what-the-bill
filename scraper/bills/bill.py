@@ -11,6 +11,7 @@ class Bill:
     def __init__(self) -> None:
         self.id = ""
         self.bill_id = ""
+        self.short_title = ""
         self.title = ""
         self.url = ""
         self.text = ""

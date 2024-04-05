@@ -19,6 +19,7 @@ class Mongo:
             "$set": {
                 "bill_id": bill.bill_id,
                 "title": bill.title,
+                "short_title": bill.short_title,
                 "url": bill.url,
                 "text": bill.text,
                 "version": bill.version,

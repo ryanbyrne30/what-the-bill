@@ -19,9 +19,9 @@ if __name__ == "__main__":
     bill_scraper = GovInfoBill(api_key=api_key, fetch=fetch)
     response = bills_scraper.fetch_bills(datetime.now() - timedelta(days=30), 100)
     packages = response.packages
-    # packages = list(
-    #     filter(lambda p: not mongo.bill_exists(p.id, p.last_modified), packages)
-    # )
+    packages = list(
+        filter(lambda p: not mongo.bill_exists(p.id, p.last_modified), packages)
+    )
 
     logging.info(f"Found {response.count} bills")
 

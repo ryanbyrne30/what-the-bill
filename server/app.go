@@ -10,8 +10,11 @@ import (
 )
 
 func main() {
+	fs := http.FileServer(http.Dir("static"))
+
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
+	r.Handle("/static/*", http.StripPrefix("/static/", fs))
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		component := layouts.Layout()
 		component.Render(context.Background(), w)

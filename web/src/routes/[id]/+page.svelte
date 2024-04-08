@@ -9,8 +9,8 @@
 
 <div class="flex flex-col items-center">
 	<div class="w-full max-w-xl flex flex-col gap-4">
-		<h1 class="text-xl font-bold max-w-xl">{data.bill.title}</h1>
-
+		<h1 class="text-xl font-bold">{data.bill.short_title}</h1>
+		<h2 class="font-medium">{data.bill.title}</h2>
 		<section class="flex flex-row justify-end">
 			<a href={data.bill.url} target="_blank">
 				<LinkIcon class="text-purple-700" />

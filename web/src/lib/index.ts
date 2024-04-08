@@ -14,6 +14,7 @@ export const billSummaryValidator = z.object({
     bill_id: z.string(),
     url: z.string(),
     title: z.string(),
+    short_title: z.string(),
     updated: z.date(),
     issued: z.date(),
     actions: z.array(z.object({
@@ -27,6 +28,7 @@ export const billsValidator = z.array(billSummaryValidator);
 export const billValidator = z.object({
     bill_id: z.string(),
     title: z.string(),
+    short_title: z.string(),
     url: z.string(),
     text: z.string(),
     updated: z.date(),

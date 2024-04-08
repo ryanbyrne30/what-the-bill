@@ -10,7 +10,7 @@
 <a href={`/${bill.bill_id}`}>
 	<div class="p-2 rounded bg-gray-200 flex flex-col gap-4">
 		<section class="flex flex-row items-start gap-4 justify-between">
-			<p>{bill.title}</p>
+			<p>{bill.short_title}</p>
 			<a href={bill.url} target="_blank">
 				<LinkIcon class="text-purple-800" />
 			</a>

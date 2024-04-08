@@ -4,5 +4,14 @@
     "editor.formatOnSave": true,
     "[python]": {
         "editor.defaultFormatter": "ms-python.black-formatter"
+    },
+    "tailwindCSS.includeLanguages": {
+        "templ": "html"
+    },
+    "emmet.includeLanguages": {
+        "templ": "html"
+    },
+    "[templ]": {
+        "editor.formatOnSave": true
     }
 }

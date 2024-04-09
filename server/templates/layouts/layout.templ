@@ -1,12 +1,14 @@
 package layouts
 
-templ Layout() {
+templ Layout(children templ.Component) {
 	<html>
 		<head>
 			<link rel="stylesheet" type="text/css" href="/static/css/output.css"/>
 		</head>
 		<body>
-			<div>Hello</div>
+			<main>
+				@children
+			</main>
 		</body>
 	</html>
 }

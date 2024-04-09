@@ -1,0 +1,28 @@
+package get_bills
+
+templ RenderBill(bill Bill) {
+	<a href={ templ.URL("/bills/" + bill.ID) }>
+		<div class="block">
+			<table>
+				<tbody>
+					<tr>
+						<td><h3>{ bill.ShortTitle }</h3></td>
+					</tr>
+					<tr>
+						<td>{ bill.Updated.Format("Jan 2, 2006") }</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</a>
+}
+
+templ Page(bills []Bill) {
+	<ul class="blocks">
+		for _, bill := range bills {
+			<li>
+				@RenderBill(bill)
+			</li>
+		}
+	</ul>
+}

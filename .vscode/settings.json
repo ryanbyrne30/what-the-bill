@@ -13,5 +13,8 @@
     },
     "[templ]": {
         "editor.formatOnSave": true
-    }
+    },
+    "css.customData": [
+        ".vscode/tailwind.json"
+    ]
 }

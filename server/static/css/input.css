@@ -29,3 +29,27 @@ main {
 .block h3 {
     @apply font-medium
 }
+
+.bill {
+    @apply flex flex-col gap-8 max-w-xl w-full
+}
+
+.bill header {
+    @apply flex flex-col gap-2
+}
+
+.bill h1 {
+    @apply font-bold text-xl
+}
+
+.bill .meta {
+    @apply flex flex-row w-full justify-between items-center
+}
+
+.bill section {
+    @apply flex flex-col gap-3
+}
+
+.bill p {
+    @apply text-center
+}

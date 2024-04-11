@@ -27,7 +27,7 @@ func RenderBill(bill Bill) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var2 templ.SafeURL = templ.URL("/bills/" + bill.ID)
+		var templ_7745c5c3_Var2 templ.SafeURL = templ.URL("/bills/" + bill.ID.Hex())
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(string(templ_7745c5c3_Var2)))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err

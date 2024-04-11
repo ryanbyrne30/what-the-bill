@@ -10,6 +10,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/joho/godotenv"
+	get_bill "github.com/ryanbyrne30/what-the-bill/server/apps/get-bill"
 	get_bills "github.com/ryanbyrne30/what-the-bill/server/apps/get-bills"
 	"github.com/ryanbyrne30/what-the-bill/server/templates/layouts"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -51,6 +52,7 @@ func main() {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Handle("/static/*", http.StripPrefix("/static/", fs))
+	r.Get("/bills/{id}", get_bill.NewGetBillHandler(context.TODO(), coll))
 	r.Get("/bills", get_bills.NewGetBillsHandler(context.TODO(), coll))
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 		opts := &get_bills.GetBillsOpts{

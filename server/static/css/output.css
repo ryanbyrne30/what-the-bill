@@ -604,3 +604,41 @@ main {
 .block h3 {
   font-weight: 500;
 }
+
+.bill {
+  display: flex;
+  width: 100%;
+  max-width: 36rem;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.bill header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.bill h1 {
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+  font-weight: 700;
+}
+
+.bill .meta {
+  display: flex;
+  width: 100%;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.bill section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.bill p {
+  text-align: center;
+}

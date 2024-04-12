@@ -1,0 +1,21 @@
+package get_bill
+
+import "strings"
+
+templ Page(bill *Bill) {
+	<div class="bill">
+		<header>
+			<h1>{ bill.ShortTitle }</h1>
+			<h2>{ bill.Title }</h2>
+		</header>
+		<div class="meta">
+			<span>{ bill.Issued.Format("Jan 2, 2006") }</span>
+			<span>{ bill.Updated.Format("Jan 2, 2006") }</span>
+		</div>
+		<section>
+			for _, p := range strings.Split(bill.Text, "\n") {
+				<p>{ p }</p>
+			}
+		</section>
+	</div>
+}

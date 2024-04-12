@@ -1,0 +1,14 @@
+package layouts
+
+templ Layout(children templ.Component) {
+	<html>
+		<head>
+			<link rel="stylesheet" type="text/css" href="/static/css/output.css"/>
+		</head>
+		<body>
+			<main>
+				@children
+			</main>
+		</body>
+	</html>
+}

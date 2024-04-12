@@ -1,0 +1,55 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+    @apply bg-slate-900 text-white;
+}
+
+main {
+    @apply w-full flex flex-col items-center p-2;
+}
+
+.blocks {
+    @apply flex flex-col gap-2
+}
+
+.block {
+    @apply p-4 rounded w-full shadow shadow-black border border-slate-800
+}
+
+.block table {
+    @apply w-full gap-1
+}
+
+.block table tr:nth-child(2) {
+    @apply text-nowrap whitespace-nowrap text-xs
+}
+
+.block h3 {
+    @apply font-medium
+}
+
+.bill {
+    @apply flex flex-col gap-8 max-w-xl w-full
+}
+
+.bill header {
+    @apply flex flex-col gap-2
+}
+
+.bill h1 {
+    @apply font-bold text-xl
+}
+
+.bill .meta {
+    @apply flex flex-row w-full justify-between items-center
+}
+
+.bill section {
+    @apply flex flex-col gap-3
+}
+
+.bill p {
+    @apply text-center
+}

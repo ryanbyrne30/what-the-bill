@@ -1,5 +1,5 @@
 import os
-from pack import USBills
+from scraper.extract_load import USBills
 from datetime import datetime, timedelta
 import logging
 

@@ -1,0 +1,10 @@
+{
+    "triggerTaskOnSave.tasks": {
+        "Compile Queue Proto": [
+            "proto_queue/queue.proto"
+        ],
+        "Compile Consumer US Bills Proto": [
+            "proto_consumer_us_bills/consumer_us_bills.proto"
+        ]
+    }
+}

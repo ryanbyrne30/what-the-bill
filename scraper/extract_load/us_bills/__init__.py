@@ -1,6 +1,6 @@
 from .api import API
-from .mongo import Mongo, BillData
-from pack.fetch import Fetch
+from .mongo import Mongo
+from extract_load.fetch import Fetch
 from datetime import datetime
 
 
@@ -14,5 +14,4 @@ class USBills:
 
     def run(self, since: datetime, limit: int = 1000, offset: int = 0):
         data = self.api.fetch_bills(from_date=since, limit=limit, offset=offset)
-        data_map = [BillData(d["packageId"], d) for d in data]
-        return self.mongo.upsert_bills(data_map)
+        return self.mongo.upsert_bills(data)

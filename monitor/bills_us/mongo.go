@@ -11,8 +11,8 @@ import (
 )
 
 type BillActions struct {
-	Date   string `bson:"date"`
-	Action string `bson:"action"`
+	Date   time.Time `bson:"date"`
+	Action string    `bson:"action"`
 }
 
 type BillMembers struct {
@@ -74,6 +74,7 @@ func (m *Mongo) Disconnect(ctx context.Context) error {
 }
 
 func (m *Mongo) InsertBill(ctx context.Context, bill *Bill) error {
+	bill.ID = primitive.NewObjectID()
 	_, err := m.col.InsertOne(ctx, bill)
 	return err
 }

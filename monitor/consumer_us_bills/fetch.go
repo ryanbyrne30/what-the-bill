@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"encoding/xml"
 	"io"
 	"log"
 	"net/http"
@@ -40,6 +41,10 @@ type FetchBillSummaryDownload struct {
 	TextLink string `json:"txtLink"`
 }
 
+type FetchBillSummaryRelated struct {
+	BillStatusLink string `json:"billStatusLink"`
+}
+
 type FetchBillSummaryResponse struct {
 	ShortTitle  []FetchBillSummaryShortTitle `json:"shortTitle"`
 	Title       string                       `json:"title"`
@@ -49,11 +54,33 @@ type FetchBillSummaryResponse struct {
 	Pages       string                       `json:"pages"`
 	Version     string                       `json:"billVersion"`
 	Type        string                       `json:"billType"`
+	Related     FetchBillSummaryRelated      `json:"related"`
 	Members     []FetchBillsSummaryMember    `json:"members"`
 	Committees  []FetchBillSummaryCommittee  `json:"committees"`
 	Download    FetchBillSummaryDownload     `json:"download"`
 	PublishedAt string                       `json:"dateIssued"`
 	UpdatedAt   string                       `json:"lastModified"`
+}
+
+type FetchBillStatusBillAction struct {
+	XMLName    xml.Name `xml:"item"`
+	ActionDate string   `xml:"actionDate"`
+	Text       string   `xml:"text"`
+}
+
+type FetchBillStatusBillActions struct {
+	XMLName xml.Name                    `xml:"actions"`
+	Items   []FetchBillStatusBillAction `xml:"item"`
+}
+
+type FetchBillStatusBill struct {
+	XMLName xml.Name                   `xml:"bill"`
+	Actions FetchBillStatusBillActions `xml:"actions"`
+}
+
+type FetchBillStatusResponse struct {
+	XMLName xml.Name            `xml:"billStatus"`
+	Bill    FetchBillStatusBill `xml:"bill"`
 }
 
 func (f *Fetch) Sleep() {
@@ -100,4 +127,28 @@ func (f *Fetch) FetchBillText(url string) (string, error) {
 	}
 
 	return string(body), nil
+}
+
+func (f *Fetch) FetchBillActions(url string) (*FetchBillStatusResponse, error) {
+	f.Sleep()
+	res, err := http.Get(url)
+	if err != nil {
+		log.Printf("Could not fetch bill actions")
+		return nil, err
+	}
+
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		log.Printf("Could not read response from fetching bill actions")
+		return nil, err
+	}
+
+	var response FetchBillStatusResponse
+	err = xml.Unmarshal(body, &response)
+	if err != nil {
+		log.Printf("Could not unmarshal response from fetching bill actions")
+		return nil, err
+	}
+
+	return &response, nil
 }

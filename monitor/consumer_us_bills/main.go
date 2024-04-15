@@ -43,6 +43,22 @@ func (s *server) SendUSBillCreated(ctx context.Context, in *proto_consumer_us_bi
 	}
 	bill.Text = text
 
+	actionsResponse, err := s.fetch.FetchBillActions(details.Related.BillStatusLink)
+	if err != nil {
+		return nil, err
+	}
+	for _, action := range actionsResponse.Bill.Actions.Items {
+		d, err := time.Parse("2006-01-02", action.ActionDate)
+		if err != nil {
+			log.Printf("Could not parse action date: %v", err)
+			continue
+		}
+		bill.Actions = append(bill.Actions, bills_us.BillActions{
+			Date:   d,
+			Action: action.Text,
+		})
+	}
+
 	bill.Title = details.Title
 	bill.Url = details.Url
 	bill.Congress = details.Congress
@@ -50,20 +66,26 @@ func (s *server) SendUSBillCreated(ctx context.Context, in *proto_consumer_us_bi
 	bill.Version = details.Version
 	bill.Type = details.Type
 
+	pages, _ := strconv.Atoi(details.Pages)
+	bill.Pages = pages
+
+	if len(details.ShortTitle) > 0 {
+		bill.ShortTitle = details.ShortTitle[0].Title
+	}
+
 	publishedAt, err := time.Parse("2006-01-02", details.PublishedAt)
 	if err != nil {
+		log.Printf("ERROR parsing publish date '%s': %v", details.PublishedAt, err)
 		return nil, err
 	}
 	bill.PublishedAt = publishedAt
 
-	updatedAt, err := time.Parse("2006-01-02T15:04:05Z", details.PublishedAt)
+	updatedAt, err := time.Parse("2006-01-02T15:04:05Z", details.UpdatedAt)
 	if err != nil {
+		log.Printf("ERROR parsing update date '%s': %v", details.UpdatedAt, err)
 		return nil, err
 	}
 	bill.UpdatedAt = updatedAt
-
-	pages, _ := strconv.Atoi(details.Pages)
-	bill.Pages = pages
 
 	for _, member := range details.Members {
 		bill.Members = append(bill.Members, bills_us.BillMembers{

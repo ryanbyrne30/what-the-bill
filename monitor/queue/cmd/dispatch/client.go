@@ -7,14 +7,14 @@ import (
 	"strings"
 	"time"
 
-	proto_queue "github.com/ryanbyrne30/what-the-bill/monitor/queue/proto_queue"
+	"github.com/ryanbyrne30/what-the-bill/monitor/queue/proto_consumer_us_bills"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
 
 type ProtoClient struct {
 	conn   *grpc.ClientConn
-	client proto_queue.QueueClient
+	client proto_consumer_us_bills.ConsumerUSBillsClient
 }
 
 func NewProtoClient(addr string) *ProtoClient {
@@ -22,7 +22,7 @@ func NewProtoClient(addr string) *ProtoClient {
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
-	c := proto_queue.NewQueueClient(conn)
+	c := proto_consumer_us_bills.NewConsumerUSBillsClient(conn)
 
 	return &ProtoClient{
 		conn:   conn,
@@ -34,11 +34,11 @@ func (p *ProtoClient) Close() {
 	p.conn.Close()
 }
 
-func (p *ProtoClient) PostUSBillUpdatedEvent(ctx context.Context, event *proto_queue.USBillUpdatedEvent) error {
-	ctx, cancel := context.WithTimeout(ctx, time.Second)
+func (p *ProtoClient) PostUSBillUpdatedEvent(ctx context.Context, event *proto_consumer_us_bills.USBillUpdatedEvent) error {
+	ctx, cancel := context.WithTimeout(ctx, time.Minute)
 	defer cancel()
 
-	result, err := p.client.PostUSBillUpdatedEvent(ctx, event)
+	result, err := p.client.SendUSBillUpdated(ctx, event)
 	if err != nil {
 		return err
 	}
@@ -49,11 +49,11 @@ func (p *ProtoClient) PostUSBillUpdatedEvent(ctx context.Context, event *proto_q
 	return nil
 }
 
-func (p *ProtoClient) PostUSBillCreatedEvent(ctx context.Context, event *proto_queue.USBillCreatedEvent) error {
-	ctx, cancel := context.WithTimeout(ctx, time.Second)
+func (p *ProtoClient) PostUSBillCreatedEvent(ctx context.Context, event *proto_consumer_us_bills.USBillCreatedEvent) error {
+	ctx, cancel := context.WithTimeout(ctx, time.Minute)
 	defer cancel()
 
-	result, err := p.client.PostUSBillCreatedEvent(ctx, event)
+	result, err := p.client.SendUSBillCreated(ctx, event)
 	if err != nil {
 		return err
 	}

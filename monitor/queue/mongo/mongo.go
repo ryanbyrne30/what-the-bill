@@ -6,6 +6,7 @@ import (
 	"log"
 	"time"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -49,4 +50,24 @@ func (m *Mongo) SaveEvent(ctx context.Context, event *Event) error {
 	event.Created = time.Now()
 	_, err := m.col.InsertOne(ctx, event)
 	return err
+}
+
+func (m *Mongo) DeleteEvent(ctx context.Context, id primitive.ObjectID) error {
+	_, err := m.col.DeleteOne(ctx, bson.D{{Key: "_id", Value: id}})
+	return err
+}
+
+func (m *Mongo) GetEvents(ctx context.Context, limit int) ([]Event, error) {
+	opts := options.Find().SetLimit(int64(limit)).SetSort(bson.D{{Key: "created_at", Value: 1}})
+	cursor, err := m.col.Find(ctx, bson.D{{}}, opts)
+	if err != nil {
+		return nil, err
+	}
+
+	var events []Event
+	if err = cursor.All(ctx, &events); err != nil {
+		return nil, err
+	}
+
+	return events, nil
 }

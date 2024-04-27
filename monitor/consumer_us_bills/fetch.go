@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"encoding/xml"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -91,11 +92,19 @@ func (f *Fetch) FetchBillDetails(url string) (*FetchBillSummaryResponse, error) 
 	f.Sleep()
 	client := &http.Client{}
 	req, _ := http.NewRequest("GET", url, nil)
+	if f.apiKey == "" {
+		log.Printf("WARN no api key set")
+	}
 	req.Header.Set("X-Api-Key", f.apiKey)
 
 	res, err := client.Do(req)
 	if err != nil {
 		return nil, err
+	}
+
+	if res.StatusCode != 200 {
+		log.Printf("ERROR received status code: %d. %s", res.StatusCode, res.Body)
+		return nil, fmt.Errorf("received bad status code: %d", res.StatusCode)
 	}
 
 	body, err := io.ReadAll(res.Body)
@@ -104,7 +113,6 @@ func (f *Fetch) FetchBillDetails(url string) (*FetchBillSummaryResponse, error) 
 	}
 
 	var data FetchBillSummaryResponse
-
 	err = json.Unmarshal(body, &data)
 	if err != nil {
 		return nil, err
@@ -115,26 +123,53 @@ func (f *Fetch) FetchBillDetails(url string) (*FetchBillSummaryResponse, error) 
 }
 
 func (f *Fetch) FetchBillText(url string) (string, error) {
+	log.Printf("Fetching bill text from: %s", url)
 	f.Sleep()
-	res, err := http.Get(url)
+	client := &http.Client{}
+	req, _ := http.NewRequest("GET", url, nil)
+	if f.apiKey == "" {
+		log.Printf("WARN no api key set")
+	}
+	req.Header.Set("X-Api-Key", f.apiKey)
+
+	res, err := client.Do(req)
 	if err != nil {
 		return "", err
+	}
+
+	if res.StatusCode != 200 {
+		log.Printf("ERROR received status code when fetching text: %d. %s", res.StatusCode, res.Body)
+		return "", fmt.Errorf("received bad status code: %d", res.StatusCode)
 	}
 
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
+		log.Printf("Could not read bill text from: %s. %v", url, err)
 		return "", err
 	}
 
+	log.Printf("Fetched text from: %s", url)
 	return string(body), nil
 }
 
 func (f *Fetch) FetchBillActions(url string) (*FetchBillStatusResponse, error) {
+	log.Printf("Fetching bill actions from: %s", url)
 	f.Sleep()
-	res, err := http.Get(url)
+	client := &http.Client{}
+	req, _ := http.NewRequest("GET", url, nil)
+	if f.apiKey == "" {
+		log.Printf("WARN no api key set")
+	}
+	req.Header.Set("X-Api-Key", f.apiKey)
+
+	res, err := client.Do(req)
 	if err != nil {
-		log.Printf("Could not fetch bill actions")
 		return nil, err
+	}
+
+	if res.StatusCode != 200 {
+		log.Printf("ERROR received status code when fetching bill actions: %d. %s", res.StatusCode, res.Body)
+		return nil, fmt.Errorf("received bad status code: %d", res.StatusCode)
 	}
 
 	body, err := io.ReadAll(res.Body)
@@ -150,5 +185,6 @@ func (f *Fetch) FetchBillActions(url string) (*FetchBillStatusResponse, error) {
 		return nil, err
 	}
 
+	log.Printf("Fetched bill actions from: %s", url)
 	return &response, nil
 }

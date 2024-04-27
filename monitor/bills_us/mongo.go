@@ -5,6 +5,7 @@ import (
 	"log"
 	"time"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -34,7 +35,7 @@ type BillCommittees struct {
 type Bill struct {
 	ID          primitive.ObjectID `bson:"_id"`
 	BillID      string             `bson:"bill_id"`
-	ShortTitle  string             `bson:"short_title"`
+	ShortTitles []string           `bson:"short_titles"`
 	Title       string             `bson:"title"`
 	Url         string             `bson:"url"`
 	Text        string             `bson:"text"`
@@ -73,8 +74,22 @@ func (m *Mongo) Disconnect(ctx context.Context) error {
 	return m.client.Disconnect(ctx)
 }
 
+func (m *Mongo) GetBillById(ctx context.Context, packageId string) (*Bill, error) {
+	var bill Bill
+	err := m.col.FindOne(ctx, bson.D{{Key: "bill_id", Value: packageId}}).Decode(&bill)
+	if err != nil {
+		return nil, err
+	}
+	return &bill, nil
+}
+
 func (m *Mongo) InsertBill(ctx context.Context, bill *Bill) error {
 	bill.ID = primitive.NewObjectID()
 	_, err := m.col.InsertOne(ctx, bill)
+	return err
+}
+
+func (m *Mongo) UpdateBill(ctx context.Context, bill *Bill) error {
+	_, err := m.col.UpdateOne(ctx, bson.D{{Key: "_id", Value: bill.ID}}, bson.D{{Key: "$set", Value: bill}})
 	return err
 }

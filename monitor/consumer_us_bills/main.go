@@ -43,20 +43,22 @@ func (s *server) SendUSBillCreated(ctx context.Context, in *proto_consumer_us_bi
 	}
 	bill.Text = text
 
-	actionsResponse, err := s.fetch.FetchBillActions(details.Related.BillStatusLink)
-	if err != nil {
-		return nil, err
-	}
-	for _, action := range actionsResponse.Bill.Actions.Items {
-		d, err := time.Parse("2006-01-02", action.ActionDate)
+	if details.Related.BillStatusLink != "" {
+		actionsResponse, err := s.fetch.FetchBillActions(details.Related.BillStatusLink)
 		if err != nil {
-			log.Printf("Could not parse action date: %v", err)
-			continue
+			return nil, err
 		}
-		bill.Actions = append(bill.Actions, bills_us.BillActions{
-			Date:   d,
-			Action: action.Text,
-		})
+		for _, action := range actionsResponse.Bill.Actions.Items {
+			d, err := time.Parse("2006-01-02", action.ActionDate)
+			if err != nil {
+				log.Printf("Could not parse action date: %v", err)
+				continue
+			}
+			bill.Actions = append(bill.Actions, bills_us.BillActions{
+				Date:   d,
+				Action: action.Text,
+			})
+		}
 	}
 
 	bill.Title = details.Title
@@ -70,7 +72,11 @@ func (s *server) SendUSBillCreated(ctx context.Context, in *proto_consumer_us_bi
 	bill.Pages = pages
 
 	if len(details.ShortTitle) > 0 {
-		bill.ShortTitle = details.ShortTitle[0].Title
+		shortTitles := make([]string, len(details.ShortTitle))
+		for i := range details.ShortTitle {
+			shortTitles[i] = details.ShortTitle[i].Title
+		}
+		bill.ShortTitles = shortTitles
 	}
 
 	publishedAt, err := time.Parse("2006-01-02", details.PublishedAt)
@@ -117,6 +123,24 @@ func (s *server) SendUSBillCreated(ctx context.Context, in *proto_consumer_us_bi
 
 func (s *server) SendUSBillUpdated(ctx context.Context, in *proto_consumer_us_bills.USBillUpdatedEvent) (*proto_consumer_us_bills.EventPosted, error) {
 	log.Printf("received update bill event: %s", in.PackageId)
+	bill, err := s.mongo.GetBillById(ctx, in.PackageId)
+	if err != nil {
+		log.Printf("ERROR bill not saved: '%s': %v", in.PackageId, err)
+		return nil, err
+	}
+
+	updatedAt, err := time.Parse("2006-01-02T15:04:05Z", in.UpdatedAt)
+	if err != nil {
+		log.Printf("ERROR parsing update date '%s': %v", in.UpdatedAt, err)
+		return nil, err
+	}
+	bill.UpdatedAt = updatedAt
+
+	err = s.mongo.UpdateBill(ctx, bill)
+	if err != nil {
+		return nil, err
+	}
+
 	return &proto_consumer_us_bills.EventPosted{Status: "Ok"}, nil
 }
 

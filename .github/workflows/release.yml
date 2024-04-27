@@ -1,0 +1,33 @@
+on: [push]
+
+permissions:
+    contents: write
+    packages: write
+
+jobs:
+  release-linux-amd64:
+    name: release linux/amd64
+    runs-on: ubuntu-latest
+    env: 
+      o_queue_server: .bin/serve_queue
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build queue server binary
+      id: build-queue-server
+      uses: wangyoucao577/go-release-action@v1
+      with:
+        goos: linux
+        goarch: amd64
+        upload: false
+        multi_binaries: true
+        project_path: monitor/...
+
+    - name: copy file via ssh password
+      uses: appleboy/scp-action@v0.1.7
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.SSH_USERNAME }}
+        key: ${{ secrets.SSH_KEY }}
+        source: "${{ steps.build-queue-server.outputs.release_asset_dir }}/monitor/queue/cmd/server"
+        target: /home/admin

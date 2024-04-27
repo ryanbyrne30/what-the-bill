@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+option go_package = "github.com/ryanbyrne30/what-the-bill/monitor/proto_consumer_us_bills";
+
+package proto_consumer_us_bills;
+
+service ConsumerUSBills {
+    rpc SendUSBillCreated(USBillCreatedEvent) returns (EventPosted) {}
+    rpc SendUSBillUpdated(USBillUpdatedEvent) returns (EventPosted) {}
+}
+
+message USBillUpdatedEvent {
+    string package_id = 1;
+    string updated_at = 2; 
+}
+
+message USBillCreatedEvent {
+    string package_id = 1;
+    string package_link = 3;
+}
+
+message EventPosted {
+    string status = 1;
+}

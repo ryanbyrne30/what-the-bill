@@ -12,9 +12,11 @@ import (
 )
 
 type Bill struct {
-	ID         primitive.ObjectID `bson:"_id"`
-	Updated    time.Time          `bson:"updated"`
-	ShortTitle string             `bson:"short_title"`
+	ID      primitive.ObjectID `bson:"_id"`
+	Issued  time.Time          `bson:"dateIssued"`
+	Updated time.Time          `bson:"lastModified"`
+	Title   string             `bson:"title"`
+	Url     string             `bson:"packageLink"`
 }
 
 type GetBillsOpts struct {

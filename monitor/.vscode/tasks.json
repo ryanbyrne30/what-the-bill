@@ -1,0 +1,37 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Compile Queue Proto",
+            "type": "shell",
+            "command": "protoc",
+            "args": [
+                "--go_out=.",
+                "--go_opt=paths=source_relative",
+                "--go-grpc_out=.",
+                "--go-grpc_opt=paths=source_relative",
+                "queue.proto"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/proto_queue"
+            },
+            "isBackground": true
+        },
+        {
+            "label": "Compile Consumer US Bills Proto",
+            "type": "shell",
+            "command": "protoc",
+            "args": [
+                "--go_out=.",
+                "--go_opt=paths=source_relative",
+                "--go-grpc_out=.",
+                "--go-grpc_opt=paths=source_relative",
+                "consumer_us_bills.proto"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/proto_consumer_us_bills"
+            },
+            "isBackground": true
+        }
+    ]
+}
